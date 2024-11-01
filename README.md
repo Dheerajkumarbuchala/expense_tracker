@@ -14,5 +14,11 @@
 ```django-admin startproject expense_tracker```
 
 ### Creating an app inside the project
-```cd expense_tracker```
+```cd expense_tracker```<br>
 ```python manage.py startapp expenses```
+
+#### Add the app to the INSTALLED_APPS in settings.py (expenses_tracker)
+#### Migrate all the changes
+```python manage.py migrate```
+#### Run the server
+```python manage.py runserver```
