@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "expenses",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -53,10 +54,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "expense_tracker.urls"
 
+LOGIN_REDIRECT_URL = 'calendar_view'
+LOGOUT_REDIRECT_URL = 'login'
+
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
