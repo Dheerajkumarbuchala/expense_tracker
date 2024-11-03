@@ -1,0 +1,22 @@
+<h2>Add Expense for {{ selected_date }}</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Date:</label>
+    <input type="text" name="date" value="{{ selected_date }}" readonly><br>
+
+    <label>Amount:</label>
+    <input type="number" name="amount" step="0.01"><br>
+
+    <label>Category:</label>
+    <select name="category">
+        <option value="food">Food</option>
+        <option value="transport">Transport</option>
+        <option value="entertainment">Entertainment</option>
+        <!-- Add more categories as needed -->
+    </select><br>
+
+    <label>Comments:</label>
+    <textarea name="comments"></textarea><br>
+
+    <button type="submit">Save Expense</button>
+</form>
