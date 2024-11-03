@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Calendar</title>
-    <!-- FullCalendar CSS and JS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
 </head>
@@ -15,12 +14,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
+            
+            // Parse events_json safely to avoid syntax errors
+            var eventsData = JSON.parse('{{ events_json|escapejs }}'); 
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 dateClick: function(info) {
-                    // Redirect to expense entry page with selected date
                     window.location.href = "/expenses/add/" + info.dateStr + "/";
-                }
+                },
+                events: eventsData  // Use parsed events data here
             });
             calendar.render();
         });

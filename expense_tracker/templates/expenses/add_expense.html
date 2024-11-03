@@ -1,22 +1,55 @@
 <h2>Add Expense for {{ selected_date }}</h2>
-<form method="post">
+<form id="expense-form" method="post" action="">
     {% csrf_token %}
-    <label>Date:</label>
-    <input type="text" name="date" value="{{ selected_date }}" readonly><br>
-
-    <label>Amount:</label>
-    <input type="number" name="amount" step="0.01"><br>
-
-    <label>Category:</label>
-    <select name="category">
-        <option value="food">Food</option>
-        <option value="transport">Transport</option>
-        <option value="entertainment">Entertainment</option>
-        <!-- Add more categories as needed -->
-    </select><br>
-
-    <label>Comments:</label>
-    <textarea name="comments"></textarea><br>
-
+    {{ form.as_p }}
     <button type="submit">Save Expense</button>
 </form>
+
+<h3>Expenses for {{ selected_date }}</h3>
+<ul id="expense-list">
+    {% for expense in expenses %}
+        <li>{{ expense.category }} - ${{ expense.amount }} - {{ expense.comments }}</li>
+    {% endfor %}
+</ul>
+
+<h4>Total Expense for the Day: $<span id="daily-total">{{ daily_total }}</span></h4>
+
+<button id="back-to-calendar">Back to Calendar</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submission
+    document.getElementById('expense-form').addEventListener('submit', function(e) {
+        e.preventDefault();  // Prevent default form submission
+
+        // Send form data via AJAX
+        const formData = new FormData(this);
+        fetch("{% url 'add_expense' selected_date %}", {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update the daily total
+                document.getElementById('daily-total').textContent = data.daily_total;
+
+                // Append the new expense to the list
+                const expenseList = document.getElementById('expense-list');
+                const newExpense = document.createElement('li');
+                newExpense.textContent = `${data.new_expense.category} - $${data.new_expense.amount} - ${data.new_expense.comments}`;
+                expenseList.appendChild(newExpense);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Handle back button to go to the calendar
+    document.getElementById('back-to-calendar').addEventListener('click', function() {
+        window.location.href = "{% url 'calendar_view' %}";
+    });
+});
+</script>
