@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     "accounts",
     "expenses",
+    "analytics",
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "expense_tracker.urls"
 
 LOGIN_REDIRECT_URL = 'calendar_view'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 
 
 TEMPLATES = [

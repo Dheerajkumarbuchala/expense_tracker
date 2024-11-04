@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin # type: ignore
 from django.urls import path, include # type: ignore
+from .views import home_view
 
 urlpatterns = [
+    path("", home_view, name='home'),
     path("admin/", admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('expenses/', include('expenses.urls')),
