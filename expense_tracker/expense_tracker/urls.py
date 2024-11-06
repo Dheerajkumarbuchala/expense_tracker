@@ -19,8 +19,9 @@ from django.urls import path, include # type: ignore
 from .views import home_view
 
 urlpatterns = [
-    path("", home_view, name='home'),
-    path("admin/", admin.site.urls),
+    path('', home_view, name='home'),
+    path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('expenses/', include('expenses.urls')),
+    path('analytics/', include('analytics.urls')),
 ]

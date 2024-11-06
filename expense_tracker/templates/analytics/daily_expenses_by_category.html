@@ -1,0 +1,8 @@
+<h2>Daily Expenses by Category</h2>
+<div id="chart"></div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    // Parse chart data safely using JSON.parse
+    var chartData = JSON.parse("{{ chart_json|escapejs }}");
+    Plotly.newPlot('chart', chartData.data, chartData.layout);
+</script>
