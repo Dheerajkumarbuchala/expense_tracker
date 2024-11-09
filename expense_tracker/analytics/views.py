@@ -8,29 +8,58 @@ import plotly # type: ignore
 import plotly.express as px # type: ignore
 from expenses.models import Expense
 import pandas as pd
+from django.http import JsonResponse
 
 @login_required
 def main_visualization_view(request):
-    return render(request, 'analytics/main_visualization.html')
-
+    return render(request, 'analytics/dashboard.html')
 
 @login_required
 def daily_expenses_by_category_view(request):
-    today = date.today()
-    expenses = Expense.objects.filter(user=request.user, date=today).values('category').annotate(total=Sum('amount'))
+    date_str = request.GET.get('date', datetime.today().strftime('%Y-%m-%d'))
+    selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+    expenses = Expense.objects.filter(user=request.user, date=selected_date).values('category').annotate(total=Sum('amount'))
     data = [{'category': e['category'], 'amount': e['total']} for e in expenses]
 
-    # Convert to DataFrame
+    if not data:
+        return JsonResponse({'has_expenses': False})
+
     df = pd.DataFrame(data)
 
-    # Handle case where there is no data for the day
-    if df.empty:
-        fig = px.pie(values=[1], names=["No Data"], title=f"No expenses for {today}")
-    else:
-        fig = px.pie(df, names='category', values='amount', title=f'Expenses for {today}')
+    # Pie chart for expenses by category
+    pie_fig = px.pie(df, names='category', values='amount', title=f'Expenses for {selected_date}')
+    pie_chart_json = json.loads(pie_fig.to_json())
 
-    chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render(request, 'analytics/daily_expenses_by_category.html', {'chart_json': mark_safe(chart_json)})
+    # Bar chart for sum of expenses per category
+    bar_fig = px.bar(df, x='category', y='amount', title=f'Sum of Expenses for {selected_date}')
+    bar_chart_json = json.loads(bar_fig.to_json())
+
+    return JsonResponse({
+        'has_expenses': True,
+        'pie_chart': pie_chart_json,
+        'bar_chart': bar_chart_json
+    })
+
+
+
+# @login_required
+# def daily_expenses_by_category_view(request):
+#     today = date.today()
+#     expenses = Expense.objects.filter(user=request.user, date=today).values('category').annotate(total=Sum('amount'))
+#     data = [{'category': e['category'], 'amount': e['total']} for e in expenses]
+
+#     # Convert to DataFrame
+#     df = pd.DataFrame(data)
+
+#     # Handle case where there is no data for the day
+#     if df.empty:
+#         fig = px.pie(values=[1], names=["No Data"], title=f"No expenses for {today}")
+#     else:
+#         fig = px.pie(df, names='category', values='amount', title=f'Expenses for {today}')
+
+#     chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+#     return render(request, 'analytics/daily_expenses_by_category.html', {'chart_json': mark_safe(chart_json)})
 
 
 @login_required

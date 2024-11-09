@@ -55,7 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "expense_tracker.urls"
 
-LOGIN_REDIRECT_URL = 'calendar_view'
+LOGIN_REDIRECT_URL = '/analytics/dashboard/'
 LOGOUT_REDIRECT_URL = 'home'
 
 

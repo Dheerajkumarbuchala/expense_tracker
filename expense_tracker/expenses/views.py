@@ -7,6 +7,7 @@ from django.http import JsonResponse
 import json
 from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_control
+from datetime import date, datetime
 
 # Create your views here.
 @login_required
@@ -29,17 +30,22 @@ def calendar_view(request):
 
 @login_required
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def add_expense_view(request, date):
-    expenses = Expense.objects.filter(user=request.user, date=date)
-    daily_total = expenses.aggregate(Sum('amount'))['amount__sum'] or 0  # Calculate total or 0 if none
+def add_expense_view(request, date_str=None):
+    # Parse the date from the URL if provided, otherwise use today's date
+    selected_date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else date.today()
+
+    # Get expenses and calculate the daily total for the selected date
+    expenses = Expense.objects.filter(user=request.user, date=selected_date)
+    daily_total = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
 
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
             expense = form.save(commit=False)
             expense.user = request.user
+            expense.date = selected_date  # Set the selected date for the expense
             expense.save()
-            # If AJAX request, return JSON response
+            # If AJAX request, return JSON response with updated totals
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'success',
@@ -50,13 +56,13 @@ def add_expense_view(request, date):
                         'comments': expense.comments or ""
                     }
                 })
-            return redirect('calendar_view')
+            return redirect('main_visualization')  # Redirect to dashboard after adding expense
     else:
-        form = ExpenseForm(initial={'date': date})  # Pre-fill the date field for GET requests
+        form = ExpenseForm(initial={'date': selected_date})  # Pre-fill the date field for GET requests
 
     context = {
         'form': form,
-        'selected_date': date,
+        'selected_date': selected_date,
         'expenses': expenses,
         'daily_total': daily_total,
     }
