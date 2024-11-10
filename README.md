@@ -28,3 +28,49 @@ This project is designed to provide users with a streamlined way to record and a
 - Git
 
 ### Setup Instructions
+1. **Clone the repository**
+    ```bash
+    git clone git@github.com:Dheerajkumarbuchala/expense_tracker.git
+    cd expense_tracker
+
+2. **Create and activate a virtual environment**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+
+3. **Install required dependencies**
+    ```bash
+    pip install -r requirements.txt
+
+4. **Run database migrations**
+    ```bash
+    python manage.py migrate
+
+5. **Start the development server**
+    ```bash
+    python manage.py runserver
+
+6. **Access the application**
+- Visit http://127.0.0.1:8000/ in your browser to access the homepage.
+
+## Project Structure
+
+## Usage
+1. **Register and LogIn**: Start by registering a new account and logging in.
+2. **Dashboard**:
+    - View a calendar on the left and a summary of expenses for the selected date on the right.
+    - Click on any date to view or add expenses.
+3. **Add Expense**:
+    - Click "Add Expense" to enter a new expense for a selected date.
+    - Choose a category, enter the amount, and add optional comments.
+4. **View Reports**:
+    - Access reports by clicking the "View Reports" button on the dashboard.
+    - Select a year and a month (or "All" for monthly view) to generate the desired report.
+
+## Reports and Visualizations
+- **Daily Visualization on Dashboard**:
+    - **Pie Chart**: Displays the distribution of expenses by category.
+    - **Bar Chart**: Shows the total expenses for each category for the selected date.
+- **Monthly and Yearly Reports**:
+    -**Yearly Report**: Bar chart of total expenses per month.
+    -**Monthly Report**: Stacked bar chart of daily expenses by category for the selected month.
