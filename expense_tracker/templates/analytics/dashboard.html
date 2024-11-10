@@ -37,7 +37,17 @@
     <div id="sidebar">
         <h2>Calendar</h2>
         <div id="calendar"></div>
+        <br>
+        <button id="view-reports-btn">View Reports</button>
     </div>
+
+    <!-- <button id="view-reports-btn">View Reports</button> -->
+
+    <script>
+        document.getElementById('view-reports-btn').onclick = function() {
+            window.location.href = "{% url 'reports' %}";
+        };
+    </script>
 
     <!-- Content Area for Charts or No Expenses Message -->
     <div id="content">

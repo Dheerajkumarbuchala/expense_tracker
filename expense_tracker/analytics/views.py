@@ -71,6 +71,41 @@ def daily_expenses_by_category_view(request):
     })
 
 
+@login_required
+def reports_view(request):
+    # Get the available years for dropdown
+    current_year = datetime.now().year
+    years = list(range(current_year, current_year - 10, -1))  # Last 10 years
+
+    return render(request, 'analytics/reports.html', {'years': years})
+
+@login_required
+def report_data(request):
+    year = int(request.GET.get('year'))
+    month = request.GET.get('month')
+
+    expenses = Expense.objects.filter(user=request.user, date__year=year)
+
+    if month == 'all':
+        # Yearly Report: Total expenses per month
+        expenses = expenses.values('date__month').annotate(total=Sum('amount'))
+        df = pd.DataFrame(expenses)
+        df['month'] = df['date__month'].apply(lambda x: datetime(2024, x, 1).strftime('%B'))
+
+        bar_fig = px.bar(df, x='month', y='total', title=f'Total Expenses in {year}')
+        bar_chart_json = json.loads(bar_fig.to_json())
+        
+        return JsonResponse({'bar_chart': bar_chart_json})
+    else:
+        # Monthly Report: Stacked bar chart of daily expenses by category
+        month = int(month)
+        expenses = expenses.filter(date__month=month).values('date__day', 'category').annotate(total=Sum('amount'))
+        df = pd.DataFrame(expenses)
+
+        stacked_bar_fig = px.bar(df, x='date__day', y='total', color='category', title=f'Expenses by Category for {datetime(2024, month, 1).strftime("%B")} {year}')
+        stacked_bar_chart_json = json.loads(stacked_bar_fig.to_json())
+        
+        return JsonResponse({'stacked_bar_chart': stacked_bar_chart_json})
 
 # @login_required
 # def daily_expenses_by_category_view(request):
@@ -91,24 +126,24 @@ def daily_expenses_by_category_view(request):
 #     return render(request, 'analytics/daily_expenses_by_category.html', {'chart_json': mark_safe(chart_json)})
 
 
-@login_required
-def daily_expenses_in_month_view(request, month=None, year=None):
-    month = month or datetime.today().month
-    year = year or datetime.today().year
-    expenses = Expense.objects.filter(user=request.user, date__year=year, date__month=month).values('date', 'category').annotate(total=Sum('amount'))
-    data = [{'date': e['date'], 'category': e['category'], 'amount': e['total']} for e in expenses]
+# @login_required
+# def daily_expenses_in_month_view(request, month=None, year=None):
+#     month = month or datetime.today().month
+#     year = year or datetime.today().year
+#     expenses = Expense.objects.filter(user=request.user, date__year=year, date__month=month).values('date', 'category').annotate(total=Sum('amount'))
+#     data = [{'date': e['date'], 'category': e['category'], 'amount': e['total']} for e in expenses]
 
-    fig = px.bar(data, x='date', y='amount', color='category', title=f'Daily Expenses for {year}-{month}')
-    chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render(request, 'analytics/daily_expenses_in_month.html', {'chart_json': mark_safe(chart_json)})
+#     fig = px.bar(data, x='date', y='amount', color='category', title=f'Daily Expenses for {year}-{month}')
+#     chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+#     return render(request, 'analytics/daily_expenses_in_month.html', {'chart_json': mark_safe(chart_json)})
 
 
-@login_required
-def monthly_expenses_in_year_view(request, year=None):
-    year = year or datetime.today().year
-    expenses = Expense.objects.filter(user=request.user, date__year=year).values('date__month').annotate(total=Sum('amount'))
-    data = [{'month': e['date__month'], 'amount': e['total']} for e in expenses]
+# @login_required
+# def monthly_expenses_in_year_view(request, year=None):
+#     year = year or datetime.today().year
+#     expenses = Expense.objects.filter(user=request.user, date__year=year).values('date__month').annotate(total=Sum('amount'))
+#     data = [{'month': e['date__month'], 'amount': e['total']} for e in expenses]
 
-    fig = px.bar(data, x='month', y='amount', title=f'Monthly Expenses for {year}')
-    chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render(request, 'analytics/monthly_expenses_in_year.html', {'chart_json': mark_safe(chart_json)})
+#     fig = px.bar(data, x='month', y='amount', title=f'Monthly Expenses for {year}')
+#     chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+#     return render(request, 'analytics/monthly_expenses_in_year.html', {'chart_json': mark_safe(chart_json)})
