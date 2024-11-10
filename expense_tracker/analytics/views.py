@@ -12,7 +12,36 @@ from django.http import JsonResponse
 
 @login_required
 def main_visualization_view(request):
-    return render(request, 'analytics/dashboard.html')
+    selected_date = request.GET.get('date', date.today().isoformat())
+    expenses = Expense.objects.filter(user=request.user, date=selected_date)
+
+    daily_total = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+
+    if expenses.exists():
+        data = [{'category': e.category, 'amount': e.amount} for e in expenses]
+        df = pd.DataFrame(data)
+
+        pie_fig = px.pie(df, names='category', values='amount', title='Expenses by Category')
+        pie_chart_json = json.loads(pie_fig.to_json())
+
+        bar_fig = px.bar(df, x='category', y='amount', title='Sum of Expenses by Category')
+        bar_chart_json = json.loads(bar_fig.to_json())
+
+        context = {
+            'daily_total': daily_total,
+            'pie_chart_json': mark_safe(json.dumps(pie_chart_json)),
+            'bar_chart_json': mark_safe(json.dumps(bar_chart_json)),
+            'has_expenses': True,
+            'selected_date': selected_date
+        }
+    else:
+        context = {
+            'has_expenses': False,
+            'daily_total': daily_total,
+            'selected_date': selected_date
+        }
+
+    return render(request, 'analytics/dashboard.html', context)
 
 @login_required
 def daily_expenses_by_category_view(request):

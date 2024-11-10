@@ -1,3 +1,4 @@
+<!-- templates/analytics/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,63 +39,49 @@
         <div id="calendar"></div>
     </div>
 
-    <!-- Content Area for Charts and Add Expense Button -->
+    <!-- Content Area for Charts or No Expenses Message -->
     <div id="content">
-        <div id="chart-container">
-            <div id="pie-chart"></div>
-            <div id="bar-chart"></div>
-        </div>
-        <!-- "Add Expense" Button with Base URL for JavaScript -->
-        <button id="add-expense-btn" style="display:none;" data-base-url="/expenses/add/">Add Expense</button>
+        {% if has_expenses %}
+            <div id="chart-container">
+                <div id="pie-chart"></div>
+                <div id="bar-chart"></div>
+            </div>
+            <p>Total Expenses for Today: {{ daily_total }}</p>
+        {% else %}
+            <p>There are no expenses for today.</p>
+        {% endif %}
+
+        <!-- "Add Expense" Button with JavaScript URL Assignment -->
+        <button id="add-expense-btn">Add Expense</button>
     </div>
 
-    <!-- Calendar Script and Event Handling -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize calendar in the sidebar
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 dateClick: function(info) {
-                    loadExpenseData(info.dateStr);
-                    // Set the Add Expense button URL dynamically with the selected date
-                    const addExpenseUrl = document.getElementById('add-expense-btn').getAttribute('data-base-url') + info.dateStr + '/';
-                    document.getElementById('add-expense-btn').setAttribute('data-url', addExpenseUrl);
+                    window.location.href = `/analytics/dashboard/?date=${info.dateStr}`;
                 }
             });
             calendar.render();
 
-            const today = new Date().toISOString().split('T')[0];  // Get today's date in YYYY-MM-DD format
-            loadExpenseData(today);
+            // Add Expense Button Redirect with Django URL
+            document.getElementById('add-expense-btn').onclick = function() {
+                window.location.href = "{% url 'add_expense' selected_date %}";
+            };
         });
-
-        // Function to Load Expense Data for Selected Date
-        function loadExpenseData(date) {
-            fetch(`/analytics/daily-expenses-by-category/?date=${date}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.has_expenses) {
-                        // Show "Add Expense" button and display charts
-                        document.getElementById('add-expense-btn').style.display = 'inline-block';
-                        Plotly.newPlot('pie-chart', data.pie_chart.data, data.pie_chart.layout);
-                        Plotly.newPlot('bar-chart', data.bar_chart.data, data.bar_chart.layout);
-                    } else {
-                        // Clear charts and show only "Add Expense" button
-                        document.getElementById('chart-container').innerHTML = '';
-                        document.getElementById('add-expense-btn').style.display = 'inline-block';
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        // Add Expense Button Click Handler
-        document.getElementById('add-expense-btn').onclick = function() {
-            const url = this.getAttribute('data-url');
-            if (url) {
-                window.location.href = url;
-            }
-        };
     </script>
+
+    {% if has_expenses %}
+    <script>
+        // Load chart data only if expenses exist
+        var pieChart = JSON.parse('{{ pie_chart_json|escapejs }}');
+        var barChart = JSON.parse('{{ bar_chart_json|escapejs }}');
+        Plotly.newPlot('pie-chart', pieChart.data, pieChart.layout);
+        Plotly.newPlot('bar-chart', barChart.data, barChart.layout);
+    </script>
+    {% endif %}
 </body>
 </html>
