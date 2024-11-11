@@ -59,7 +59,7 @@ This project is designed to provide users with a streamlined way to record and a
 - Visit http://127.0.0.1:8000/ in your browser to access the homepage.
 
 ## Project Structure
-<img width="249" alt="Screenshot 2024-11-10 at 3 37 56 PM" src="https://github.com/user-attachments/assets/987cf4c8-6c93-4877-a0ae-3dbcddb9ace4">
+<img width="249" alt="Screenshot 2024-11-10 at 6 48 19 PM" src="https://github.com/user-attachments/assets/a31cf3dc-f87a-4a4a-94bf-36c142d4bcb0">
 
 ## Usage
 1. **Register and LogIn**: Start by registering a new account and logging in.
