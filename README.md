@@ -32,28 +32,34 @@ This project is designed to provide users with a streamlined way to record and a
     ```bash
     git clone git@github.com:Dheerajkumarbuchala/expense_tracker.git
     cd expense_tracker
+    ```
 
 2. **Create and activate a virtual environment**
     ```bash
     python3 -m venv venv
     source venv/bin/activate
+    ```
 
 3. **Install required dependencies**
     ```bash
     pip install -r requirements.txt
+    ```
 
 4. **Run database migrations**
     ```bash
     python manage.py migrate
+    ```
 
 5. **Start the development server**
     ```bash
     python manage.py runserver
+    ```
 
 6. **Access the application**
 - Visit http://127.0.0.1:8000/ in your browser to access the homepage.
 
 ## Project Structure
+<img width="249" alt="Screenshot 2024-11-10 at 3 37 56 PM" src="https://github.com/user-attachments/assets/987cf4c8-6c93-4877-a0ae-3dbcddb9ace4">
 
 ## Usage
 1. **Register and LogIn**: Start by registering a new account and logging in.
